@@ -9,7 +9,7 @@ def calculate_gc_content(sequence):
     Returns a percentage rounded to 2 decimal places.
     """
     if not sequence:
-        return 0.0
+        return 0.0 #guard clause
     
     sequence = sequence.upper()
     g_count = sequence.count("G")
