@@ -44,3 +44,101 @@ samples = {
 
 for sample_name, variants in samples.items():
     create_sample_vcf(f"day04/samples/{sample_name}.vcf", sample_name, variants)
+
+
+# ─── Part 2: Parse all samples into one DataFrame ────────────────────
+
+def parse_info(info_string):
+    """Parse INFO column into a dictionary."""
+    info_dict = {}
+    for item in info_string.split(";"):
+        if "=" in item:
+            key, value = item.split("=")
+            info_dict[key] = value
+    return info_dict
+
+
+def parse_vcf_to_df(filepath, sample_name):
+    """Parse a VCF file and return a DataFrame with sample name added."""
+    rows = []
+
+    try:
+        with open(filepath, "r") as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("#") or not line:
+                    continue
+
+                parts = line.split("\t")
+                if len(parts) < 8:
+                    continue
+
+                chrom, pos, vid, ref, alt, qual, filter_status, info = parts[:8]
+                info_dict = parse_info(info)
+
+                rows.append({
+                    "sample":         sample_name,
+                    "chrom":          chrom,
+                    "pos":            int(pos),
+                    "ref":            ref,
+                    "alt":            alt,
+                    "qual":           float(qual),
+                    "filter":         filter_status,
+                    "gene":           info_dict.get("GENE", "Unknown"),
+                    "allele_freq":    float(info_dict.get("AF", 0)),
+                    "classification": info_dict.get("CLASS", "Unknown").replace("_", " ")
+                })
+    except FileNotFoundError:
+        print(f"File not found: {filepath}")
+
+    return pd.DataFrame(rows)
+
+
+# Parse all 3 sample files and combine into one DataFrame
+print("\n=== Parsing all samples ===")
+all_dfs = []
+
+for sample_name in samples.keys():
+    filepath = f"day04/samples/{sample_name}.vcf"
+    df = parse_vcf_to_df(filepath, sample_name)
+    all_dfs.append(df)
+    print(f"  {sample_name}: {len(df)} variants loaded")
+
+combined = pd.concat(all_dfs, ignore_index=True)
+print(f"\nTotal variants across all samples: {len(combined)}")
+
+
+# ─── Part 3: Analyse the combined data ───────────────────────────────
+
+print("\n=== Classification breakdown ===")
+print(combined["classification"].value_counts())
+
+print("\n=== Variants per sample ===")
+print(combined["sample"].value_counts())
+
+print("\n=== PASS filter only ===")
+passed = combined[combined["filter"] == "PASS"]
+print(f"Variants passing filter: {len(passed)} out of {len(combined)}")
+
+print("\n=== High priority variants (rare + pathogenic) ===")
+high_priority = combined[
+    (combined["allele_freq"] < 0.01) &
+    (combined["classification"].isin(["Pathogenic", "Likely Pathogenic"])) &
+    (combined["filter"] == "PASS")
+]
+print(high_priority[["sample", "gene", "allele_freq", "classification"]])
+
+print("\n=== Genes appearing in multiple patients ===")
+gene_counts = combined.groupby("gene")["sample"].nunique()
+recurrent = gene_counts[gene_counts > 1]
+print(recurrent)
+
+
+# ─── Part 4: Save results ─────────────────────────────────────────────
+
+combined.to_csv("day04/all_variants.csv", index=False)
+high_priority.to_csv("day04/high_priority_variants.csv", index=False)
+
+print("\n=== Saved ===")
+print("all_variants.csv — all variants from all samples")
+print("high_priority_variants.csv — only actionable variants")

@@ -1,0 +1,10 @@
+sample,chrom,pos,ref,alt,qual,filter,gene,allele_freq,classification
+patient_001,17,43044295,A,T,100.0,PASS,BRCA1,0.001,Pathogenic
+patient_001,13,32315474,G,A,95.0,PASS,BRCA2,0.45,Benign
+patient_001,17,7674220,C,T,88.0,PASS,TP53,0.002,Pathogenic
+patient_002,7,55259515,T,A,72.0,FAIL,EGFR,0.12,VUS
+patient_002,12,25398284,G,T,91.0,PASS,KRAS,0.003,Likely Pathogenic
+patient_002,10,89692905,A,G,85.0,PASS,PTEN,0.38,Benign
+patient_003,3,37067453,C,T,90.0,PASS,MLH1,0.001,Pathogenic
+patient_003,17,43044295,A,T,98.0,PASS,BRCA1,0.001,Pathogenic
+patient_003,7,55259515,T,A,65.0,FAIL,EGFR,0.12,VUS
