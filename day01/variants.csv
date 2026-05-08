@@ -1,0 +1,8 @@
+gene,chromosome,position,ref,alt,classification,allele_freq
+BRCA1,17,43044295,A,T,Pathogenic,0.001
+BRCA2,13,32315474,G,A,Benign,0.45
+TP53,17,7674220,C,T,Pathogenic,0.002
+EGFR,7,55259515,T,A,VUS,0.12
+KRAS,12,25398284,G,T,Likely Pathogenic,0.003
+PTEN,10,89692905,A,G,Benign,0.38
+MLH1,3,37067453,C,T,Pathogenic,0.001
